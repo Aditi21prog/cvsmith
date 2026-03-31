@@ -44,7 +44,7 @@ export default function PaymentPage() {
       <div className="bg-slate-900 p-6 rounded-xl text-center w-[360px]">
 
         <h2 className="text-xl font-bold mb-2">
-          Pay ₹{PAYMENT_AMOUNT} to Download Resume
+          Pay ₹21 to Download Resume
         </h2>
 
         <p className="text-sm text-slate-400 mb-4">
