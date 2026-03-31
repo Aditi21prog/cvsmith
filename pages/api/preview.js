@@ -1,7 +1,7 @@
 /* components/ResumePreview.jsx */
-import { renderPremiumPreview  } from "../lib/templates/premium";
-import { renderModernPreview   } from "../lib/templates/modern";
-import { renderCreativePreview } from "../lib/templates/creative";
+import { renderPremium } from "../../lib/templates/premium";
+import { renderModern } from "../../lib/templates/modern";
+import { renderCreative } from "../../lib/templates/creative";
 
 export default function ResumePreview({ resume, template = "premium" }) {
   if (!resume) return null;

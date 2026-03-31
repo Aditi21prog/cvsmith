@@ -1,6 +1,5 @@
 import { useRouter } from "next/router";
 import { useState } from "react";
-import { PAYMENT_AMOUNT } from "../lib/paymentConfig";
 
 export default function PaymentPage() {
 
