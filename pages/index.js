@@ -87,33 +87,77 @@ export default function Home() {
                 className="space-y-6"
               >
 
-                {/* ✅ STEP 0 → INSTRUCTIONS */}
                 {step === 0 && (
-                  <div className="bg-slate-900 border border-yellow-400/20 rounded-xl p-6 space-y-4">
-                    <h2 className="text-xl font-semibold text-yellow-400">
-                      Before You Start
-                    </h2>
+  <div className="bg-slate-900 border border-yellow-400/20 rounded-xl p-6 space-y-6">
+    
+    <h2 className="text-xl font-semibold text-yellow-400">
+      Before You Start
+    </h2>
 
-                    <ul className="text-sm text-slate-300 space-y-2 list-disc pl-5">
-                      <li>This tool is currently in early phase — available at a low cost.</li>
-                      <li>Upload your latest resume draft (important).</li>
-                      <li>Download your resume in all the available formats and it is going to cost you less that ₹150.</li>
-                      <li>For the best results, you can download in Word Format and edit further.</li>
+    <ul className="text-sm text-slate-300 space-y-2 list-disc pl-5">
+      <li>This tool is currently in early phase — available at a low cost.</li>
+      <li>Upload your latest resume draft (important).</li>
+      <li>Download your resume in all the available formats and it is going to cost you less than ₹150.</li>
+      <li>For the best results, you can download in Word Format and edit further.</li>
+          </ul>
+
+    {/* 🔥 STORY SECTION */}
+    <div className="story-card">
+
+      <h2 className="story-title">Why this tool works</h2>
+
+      <div className="story-block">
+        <p>I didn’t have a perfect profile.</p>
+        <li><p>CA dropout but had strong in depth knowledge and skills</p></li>
+        <li><p>Still worked with 2 Big 4 firms (client-facing roles)</p></li>
+        <li><p>Risk Advisory (Internal Audit)</p></li>
+        <li><p>Deal Advisory (Post-Merger Integration)</p></li>
+      </div>
+
+      <div className="story-divider"></div>
+
+      <div className="story-block">
+        <p className="subheading">What happened next:</p>
+        <li><p>Interview calls across consulting & finance</p></li>
+        <li><p>Praise from managers specifically for my CV</p></li>
+        <li><p>Access to BCG & McKinsey pre-interview rounds</p></li>
+          
+        <li className="spaced-line">
+    One manager literally sent a mail:
+  </li>
+      </div>
+
+      <div className="quote-box">
+        “Your CV is very unique.”
+      </div>
+
+      <div className="big-lesson spaced-top">
+  Resume positioning &gt; qualifications
+</div>  
+      <p className="closing-line">
+        So I built a system around it.
+      </p>
+
+    </div>
+
+                     <ul>
                       <li>
-                        Feedback/Tell us how we can improve more:
+                        Feedback/Tell us how we can improve:
                         <span className="text-yellow-400"> v98_an@yahoo.com</span>
                       </li>
                     </ul>
-
-                    <button
-                      onClick={nextStep}
-                      className="mt-4 bg-yellow-400 text-black px-5 py-2 rounded-lg font-semibold"
-                    >
-                      Start Now
-                    </button>
-                  </div>
-                )}
-
+    <button
+      onClick={nextStep}
+      className="mt-4 bg-yellow-400 text-black px-5 py-2 rounded-lg font-semibold"
+    >
+      Start Now
+    </button>
+<div className="creator-tag">
+  ⚡ Built by Aditi Sharma
+</div>
+  </div>
+)}
+                            
                 {/* STEP 1 */}
                 {step === 1 && (
                   <Step1Upload

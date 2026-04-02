@@ -180,3 +180,132 @@ select option {
 .bg-gold {
   background-color: #f6b93b !important;
 }
+
+.story-card {
+  background: linear-gradient(135deg, #020617, #0f172a);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  padding: 28px;
+  max-width: 720px;
+  color: #e5e7eb;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+  margin-top: 24px;
+  position: relative;
+}
+
+.story-badge {
+  display: inline-block;
+  background: rgba(250, 204, 21, 0.1);
+  color: #facc15;
+  padding: 6px 12px;
+  font-size: 12px;
+  border-radius: 999px;
+  margin-bottom: 12px;
+  font-weight: 500;
+}
+
+.story-title {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  color: white;
+}
+
+.story-flow p {
+  margin: 6px 0;
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+.highlight-line {
+  color: #facc15;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.subheading {
+  margin-top: 12px;
+  font-weight: 600;
+  color: #facc15;
+}
+
+.story-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+  margin: 18px 0;
+}
+
+.story-list {
+  margin-top: 8px;
+  padding-left: 18px;
+}
+
+.story-list li {
+  margin-bottom: 6px;
+}
+
+.pill-container {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.pill {
+  background: rgba(255, 255, 255, 0.06);
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+}
+
+.quote-box {
+  margin-top: 16px;
+  padding: 12px 14px;
+  border-left: 3px solid #facc15;
+  background: rgba(250, 204, 21, 0.05);
+  font-style: italic;
+}
+
+.big-lesson {
+  margin-top: 16px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: rgba(10, 116, 228, 0.404);
+  color: #facc15;
+  font-weight: 700;
+  font-size: 15px;
+}
+.spaced-line {
+  margin-top: 14px;
+}
+
+.spaced-top {
+  margin-top: 18px;
+}
+.closing-line {
+  margin-top: 12px;
+  font-size: 15px;
+  color: #ed6408;
+  font-weight: 750;
+}
+
+.footer-credit {
+  margin-top: 40px;
+  text-align: center;
+  font-size: 12px;
+  opacity: 0.6;
+  color: #9ca3af;
+}
+
+.footer-credit span {
+  color: #facc15;
+  font-weight: 500;
+}
+
+.creator-tag {
+  margin-top: 18px;
+  font-size: 12px;
+  opacity: 0.7;
+  color: #15fa5d;
+  text-align: center;
+}
