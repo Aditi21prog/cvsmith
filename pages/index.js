@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
+import ZenG from "../components/ZenG";
 
 import Sidebar from "../components/Sidebar";
 import Step1Upload from "../components/Step1Upload";
@@ -97,8 +98,10 @@ export default function Home() {
     <ul className="text-sm text-slate-300 space-y-2 list-disc pl-5">
       <li>This tool is currently in early phase — available at a low cost.</li>
       <li>Upload your latest resume draft (important).</li>
-      <li>Download your resume in all the available formats and it is going to cost you less than ₹150.</li>
+      <li>Check Your ATS Score for Free. Pay Only When You're Satisfied.</li>
+      <li>You can download 3 different types of resume in either pdf format or word format.</li>
       <li>For the best results, you can download in Word Format and edit further.</li>
+      <li>We are fully committed to protecting your data — your information is securely encrypted, safeguarded using industry-standard security practices, and is never sold or shared with third parties.</li>
           </ul>
 
     {/* 🔥 STORY SECTION */}
@@ -210,7 +213,7 @@ export default function Home() {
                   Next
                 </button>
               )}
-
+<ZenG/>
             </div>
           </div>
         </main>
