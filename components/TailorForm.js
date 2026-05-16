@@ -1,12 +1,12 @@
 import { useState } from "react";
 import ResumePreview from "./ResumePreview";
-import SkillsGapCard from "./SkillsGapCard"; // ← make sure SkillsGapCard.js is in /components/
-
+import SkillsGapCard from "./SkillsGapCard";
 
 const TEMPLATE_OPTIONS = [
-  { value: "premium", label: "Premium (Big4 / Consulting)" },
-  { value: "modern", label: "Modern (ATS Friendly)" },
+  { value: "premium",  label: "Premium (Big4 / Consulting)" },
+  { value: "modern",   label: "Modern (ATS Friendly)" },
   { value: "creative", label: "Creative (Design Focused)" },
+  { value: "google",   label: "Google (Tech / Engineering)" },   // ← NEW
 ];
 
 const LOADING_STEPS = [
@@ -26,7 +26,7 @@ export default function TailorForm({ resumeFile, resumeText, jd, role }) {
   const [loadingStep, setLoadingStep] = useState(0);
   const [resume, setResume] = useState(null);
   const [atsScore, setAtsScore] = useState(null);
-  const [sessionId, setSessionId] = useState(null); // store sessionId from /api/tailor
+  const [sessionId, setSessionId] = useState(null);
   const [error, setError] = useState("");
   const [paying, setPaying] = useState(false);
 
@@ -71,7 +71,7 @@ export default function TailorForm({ resumeFile, resumeText, jd, role }) {
 
       setResume(data);
       setAtsScore(data?.ats?.score ?? null);
-      setSessionId(data?.sessionId ?? null); // capture sessionId if your /api/tailor returns it
+      setSessionId(data?.sessionId ?? null);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -88,7 +88,6 @@ export default function TailorForm({ resumeFile, resumeText, jd, role }) {
     setError("");
 
     try {
-      // Step 1: Save resume session
       const saveRes = await fetch("/api/save-resume-session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -102,7 +101,6 @@ export default function TailorForm({ resumeFile, resumeText, jd, role }) {
 
       const { sessionId: downloadSessionId } = await saveRes.json();
 
-      // Step 2: Create Razorpay order
       const orderRes = await fetch("/api/create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -116,7 +114,6 @@ export default function TailorForm({ resumeFile, resumeText, jd, role }) {
 
       const order = await orderRes.json();
 
-      // Step 3: Open Razorpay checkout
       if (!window.Razorpay) {
         throw new Error("Razorpay not loaded. Add the script tag to _document.js.");
       }
@@ -131,7 +128,6 @@ export default function TailorForm({ resumeFile, resumeText, jd, role }) {
 
         handler: async function (response) {
           try {
-            // Step 4: Verify payment
             const verify = await fetch("/api/verify-payment", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -145,7 +141,6 @@ export default function TailorForm({ resumeFile, resumeText, jd, role }) {
             const verifyData = await verify.json();
 
             if (verifyData.success && verifyData.downloadUrl) {
-              // Step 5: Redirect to signed download URL
               window.location.href = verifyData.downloadUrl;
             } else {
               setError(verifyData.error || "Payment verification failed");
@@ -337,8 +332,7 @@ export default function TailorForm({ resumeFile, resumeText, jd, role }) {
         </div>
       )}
 
-
-      {/* ── SKILLS GAP CARD (shown after resume is generated) ── */}
+      {/* ── SKILLS GAP CARD ── */}
       {resume && !loading && (
         <SkillsGapCard
           resume={resume}

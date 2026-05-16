@@ -32,7 +32,7 @@ function normaliseSections(sections) {
     if (!s) return null;
     let items = s.items;
     if (!items && s.content) {
-      items = s.content.split(/\n|•|\u2022/).map((x) => x.trim()).filter(Boolean);
+      items = s.content.split(/\n|•|\u2022|,/).map((x) => x.trim()).filter(Boolean);
     }
     return { title: esc(s.type || s.title || "Section"), items: Array.isArray(items) ? items : [] };
   }).filter(Boolean);
@@ -40,7 +40,6 @@ function normaliseSections(sections) {
 
 /* ═══════════════════════════════════════════════════════════════════════════
    PREMIUM HTML  —  Big4 / Consulting
-   Formal serif, centred header, ruled section titles, two-col role/date rows
    ═══════════════════════════════════════════════════════════════════════════ */
 function buildPremiumHTML(resume) {
   const meta     = resume?.meta || {};
@@ -126,10 +125,7 @@ function buildPremiumHTML(resume) {
       color: #555;
       margin-bottom: 5px;
     }
-    .contact {
-      font-size: 10.5px;
-      color: #444;
-    }
+    .contact { font-size: 10.5px; color: #444; }
     .section { margin-bottom: 16px; }
     .section-header {
       display: flex;
@@ -162,7 +158,6 @@ function buildPremiumHTML(resume) {
 
 /* ═══════════════════════════════════════════════════════════════════════════
    MODERN HTML  —  ATS Friendly
-   Large thin name, right-aligned contact stack, left label col + right content col
    ═══════════════════════════════════════════════════════════════════════════ */
 function buildModernHTML(resume) {
   const meta     = resume?.meta || {};
@@ -216,9 +211,7 @@ function buildModernHTML(resume) {
           ${date ? `<span class="date">${date.toUpperCase()}</span>` : ""}
         </div>`;
       if (org) body += `<p class="org">${org}</p>`;
-      bullets.forEach((b) => {
-        body += `<p class="body-text">${esc(b)}</p>`;
-      });
+      bullets.forEach((b) => { body += `<p class="body-text">${esc(b)}</p>`; });
       body += `</div>`;
     });
 
@@ -298,8 +291,6 @@ function buildModernHTML(resume) {
 
 /* ═══════════════════════════════════════════════════════════════════════════
    CREATIVE HTML  —  Design Focused
-   Navy sidebar with teal avatar + contact, white main area with
-   right-aligned section headers, teal dot accents, teal org/date lines
    ═══════════════════════════════════════════════════════════════════════════ */
 function buildCreativeHTML(resume) {
   const meta     = resume?.meta || {};
@@ -312,7 +303,6 @@ function buildCreativeHTML(resume) {
   const initials = (meta.name || "?")
     .split(" ").map((w) => w[0] || "").slice(0, 2).join("").toUpperCase();
 
-  /* ── Sidebar ── */
   let sidebar = `
     <div class="avatar">${initials}</div>
     <h1>${esc(meta.name) || "Unnamed"}</h1>
@@ -334,9 +324,7 @@ function buildCreativeHTML(resume) {
     });
   });
 
-  /* ── Main content ── */
   let main = "";
-
   mainSections.forEach((s) => {
     main += `
       <div class="section">
@@ -348,7 +336,6 @@ function buildCreativeHTML(resume) {
 
     s.items.forEach((item) => {
       if (!item) return;
-
       if (typeof item === "string" || item.text) {
         main += `
           <div class="item-row">
@@ -357,7 +344,6 @@ function buildCreativeHTML(resume) {
           </div>`;
         return;
       }
-
       const role    = esc(item.role || item.title || item.degree || "");
       const org     = esc(item.company || item.institution || item.org || "");
       const date    = itemDate(item);
@@ -383,121 +369,250 @@ function buildCreativeHTML(resume) {
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: "Helvetica Neue", Arial, sans-serif;
-      font-size: 12px;
-      line-height: 1.55;
-      color: #1a1a1a;
-      background: #fff;
-      display: flex;
-      min-height: 100vh;
+      font-size: 12px; line-height: 1.55; color: #1a1a1a;
+      background: #fff; display: flex; min-height: 100vh;
     }
-
-    /* ── Sidebar ── */
     .sidebar {
-      width: 31%;
-      background: #1b2b3b;
+      width: 31%; background: #1b2b3b;
       padding: 32px 18px 40px;
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      flex-shrink: 0;
+      display: flex; flex-direction: column; align-items: flex-start; flex-shrink: 0;
     }
     .avatar {
-      width: 72px;
-      height: 72px;
-      border-radius: 50%;
-      background: #1fbfbf;
-      color: #1b2b3b;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 26px;
-      font-weight: 700;
-      margin: 0 auto 14px;
-      align-self: center;
+      width: 72px; height: 72px; border-radius: 50%;
+      background: #1fbfbf; color: #1b2b3b;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 26px; font-weight: 700; margin: 0 auto 14px; align-self: center;
     }
-    .sidebar h1 {
-      color: #fff;
-      font-size: 16px;
-      font-weight: 700;
-      margin-bottom: 4px;
-      line-height: 1.2;
-    }
-    .tagline {
-      color: #1fbfbf;
-      font-size: 9px;
-      font-weight: 700;
-      letter-spacing: 0.13em;
-      margin-bottom: 18px;
-    }
-    .contact-label {
-      color: #8899aa;
-      font-size: 8.5px;
-      font-weight: 700;
-      letter-spacing: 0.16em;
-      margin: 14px 0 7px;
-    }
-    .contact-item {
-      color: #fff;
-      font-size: 10.5px;
-      margin-bottom: 4px;
-      word-break: break-all;
-    }
-    .sidebar-item {
-      color: #fff;
-      font-size: 11px;
-      margin-bottom: 3px;
-    }
-
-    /* ── Main ── */
-    .main {
-      flex: 1;
-      background: #f7f9fc;
-      padding: 32px 28px 40px 24px;
-    }
+    .sidebar h1 { color: #fff; font-size: 16px; font-weight: 700; margin-bottom: 4px; line-height: 1.2; }
+    .tagline { color: #1fbfbf; font-size: 9px; font-weight: 700; letter-spacing: 0.13em; margin-bottom: 18px; }
+    .contact-label { color: #8899aa; font-size: 8.5px; font-weight: 700; letter-spacing: 0.16em; margin: 14px 0 7px; }
+    .contact-item { color: #fff; font-size: 10.5px; margin-bottom: 4px; word-break: break-all; }
+    .sidebar-item { color: #fff; font-size: 11px; margin-bottom: 3px; }
+    .main { flex: 1; background: #f7f9fc; padding: 32px 28px 40px 24px; }
     .section { margin-bottom: 22px; }
-    .section-header {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 12px;
-    }
+    .section-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
     .section-rule { flex: 1; height: 1px; background: #c8d8e8; }
-    .section-title {
-      font-size: 9.5px;
-      font-weight: 700;
-      letter-spacing: 0.18em;
-      color: #8899aa;
-      white-space: nowrap;
-    }
-    .item-row {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 12px;
-    }
-    .dot-col {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding-top: 1px;
-      flex-shrink: 0;
-      width: 12px;
-    }
+    .section-title { font-size: 9.5px; font-weight: 700; letter-spacing: 0.18em; color: #8899aa; white-space: nowrap; }
+    .item-row { display: flex; gap: 10px; margin-bottom: 12px; }
+    .dot-col { display: flex; flex-direction: column; align-items: center; padding-top: 1px; flex-shrink: 0; width: 12px; }
     .dot { color: #1fbfbf; font-size: 9px; line-height: 1; }
     .vline { flex: 1; width: 1px; background: #c8d8e8; margin-top: 3px; min-height: 16px; }
     .item-content { flex: 1; display: flex; flex-direction: column; gap: 2px; }
     .role { font-weight: 700; font-size: 13px; color: #111; }
-    .org-date {
-      font-size: 9.5px;
-      font-weight: 700;
-      color: #1fbfbf;
-      letter-spacing: 0.05em;
-      margin: 2px 0 4px;
-    }
+    .org-date { font-size: 9.5px; font-weight: 700; color: #1fbfbf; letter-spacing: 0.05em; margin: 2px 0 4px; }
     .body-text { font-size: 11px; color: #333; line-height: 1.5; }
   </style></head>
   <body>
     <div class="sidebar">${sidebar}</div>
     <div class="main">${main}</div>
+  </body></html>`;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   GOOGLE HTML  —  Tech / Engineering
+   Two-column: narrow left sidebar (contact, education, skills, achievements)
+   + wide right main (experience, projects). Google brand colour accents.
+   Works with the meta+sections schema from /api/tailor — no separate schema needed.
+   ═══════════════════════════════════════════════════════════════════════════ */
+function buildGoogleHTML(resume) {
+  const meta     = resume?.meta || {};
+  const sections = normaliseSections(resume?.sections);
+
+  const G = { blue: "#4285F4", red: "#EA4335", yellow: "#FBBC05", green: "#34A853" };
+
+  const SIDEBAR_TITLES = new Set(["skills","technical skills","key skills","core skills","technologies","education","certifications","achievements","languages","interests","awards"]);
+  const normalizeTitle = (t) => (t || "").toLowerCase().trim();
+  const sidebarSections = sections.filter((s) => SIDEBAR_TITLES.has(normalizeTitle(s.title)));
+  const mainSections    = sections.filter((s) => !SIDEBAR_TITLES.has(normalizeTitle(s.title)));
+
+  const sectionColors = [G.blue, G.red, G.yellow, G.green];
+  const dotColors     = [G.blue, G.red, G.yellow, G.green];
+
+  /* ── Sidebar HTML ── */
+  let sidebar = `
+    <div class="g-contact-section">
+      <div class="g-section-heading" style="color:${G.blue};border-color:${G.blue}">CONTACT</div>
+      ${meta.location ? `<div class="g-contact-item"><span class="g-icon">📍</span>${esc(meta.location)}</div>` : ""}
+      ${meta.email    ? `<div class="g-contact-item"><span class="g-icon">✉️</span>${esc(meta.email)}</div>` : ""}
+      ${meta.phone    ? `<div class="g-contact-item"><span class="g-icon">📞</span>${esc(meta.phone)}</div>` : ""}
+      ${meta.linkedin ? `<div class="g-contact-item"><span class="g-icon">💼</span>${esc(meta.linkedin)}</div>` : ""}
+      ${meta.website  ? `<div class="g-contact-item"><span class="g-icon">🔗</span>${esc(meta.website)}</div>` : ""}
+      ${meta.github   ? `<div class="g-contact-item"><span class="g-icon">⚙️</span>${esc(meta.github)}</div>` : ""}
+    </div>
+  `;
+
+  sidebarSections.forEach((s, si) => {
+    const color = sectionColors[si % sectionColors.length];
+    sidebar += `<div class="g-sidebar-section">
+      <div class="g-section-heading" style="color:${color};border-color:${color}">${s.title.toUpperCase()}</div>`;
+
+    s.items.forEach((item, ii) => {
+      const dotColor = dotColors[ii % dotColors.length];
+      if (typeof item === "string") {
+        sidebar += `<span class="g-chip">${esc(item)}</span>`;
+        return;
+      }
+      if (item.text) {
+        // Skill chip
+        sidebar += `<span class="g-chip">${esc(item.text)}</span>`;
+      } else {
+        // Education / structured item
+        const role = esc(item.role || item.degree || item.title || "");
+        const org  = esc(item.org || item.institution || item.company || "");
+        const date = itemDate(item);
+        sidebar += `
+          <div class="g-sidebar-entry">
+            <div class="g-dot" style="background:${dotColor}"></div>
+            <div>
+              ${role ? `<div class="g-entry-title">${role}</div>` : ""}
+              ${org  ? `<div class="g-entry-sub">${org}</div>` : ""}
+              ${date ? `<div class="g-entry-date">${date}</div>` : ""}
+            </div>
+          </div>`;
+      }
+    });
+
+    sidebar += `</div>`;
+  });
+
+  /* ── Main content HTML ── */
+  let main = "";
+  mainSections.forEach((s, si) => {
+    const color = sectionColors[si % sectionColors.length];
+    main += `<div class="g-main-section">
+      <div class="g-section-heading" style="color:${color};border-color:${color}">${s.title.toUpperCase()}</div>`;
+
+    s.items.forEach((item, ii) => {
+      const dotColor = dotColors[ii % dotColors.length];
+      if (typeof item === "string" || item.text) {
+        main += `<p class="g-body-text">• ${esc(item.text || item)}</p>`;
+        return;
+      }
+
+      const role    = esc(item.role || item.title || item.degree || "");
+      const org     = esc(item.company || item.institution || item.org || "");
+      const loc     = esc(item.location || "");
+      const date    = itemDate(item);
+      const bullets = item.bullets || item.descriptions || item.details || [];
+
+      main += `<div class="g-entry">
+        <div class="g-entry-dot" style="background:${dotColor};border-color:${dotColor}"></div>
+        <div class="g-entry-body">
+          <div class="g-entry-header">
+            <span class="g-entry-role">${role}</span>
+            ${loc ? `<span class="g-location-badge">${loc}</span>` : ""}
+          </div>
+          ${org  ? `<div class="g-entry-org" style="color:${color}">${org}</div>` : ""}
+          ${date ? `<div class="g-entry-date">${date}</div>` : ""}
+          ${bullets.map((b) => `<div class="g-bullet">• ${esc(b)}</div>`).join("")}
+        </div>
+      </div>`;
+    });
+
+    main += `</div>`;
+  });
+
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"><style>
+    @page { size: A4; margin: 0; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: Arial, "Helvetica Neue", sans-serif;
+      font-size: 11px; line-height: 1.55; color: #202124;
+      background: #fff; display: flex; flex-direction: column; min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    .g-header { padding: 24px 28px 16px; background: #fff; }
+    .g-name { font-size: 32px; font-weight: 700; color: #202124; margin-bottom: 3px; }
+    .g-title { font-size: 13px; color: #80868b; margin-bottom: 8px; }
+
+    /* ── Google colour bar ── */
+    .g-bar { display: flex; height: 3px; width: 100%; }
+    .g-bar div { flex: 1; }
+
+    /* ── Body ── */
+    .g-body { display: flex; flex: 1; }
+
+    /* ── Sidebar ── */
+    .g-sidebar {
+      width: 220px; flex-shrink: 0;
+      padding: 18px 16px 24px 24px;
+      border-right: 1px solid #e8eaed;
+    }
+    .g-contact-section { margin-bottom: 14px; }
+    .g-sidebar-section { margin-bottom: 14px; }
+    .g-section-heading {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; border-bottom: 2px solid;
+      padding-bottom: 3px; margin-bottom: 8px;
+    }
+    .g-contact-item {
+      display: flex; align-items: flex-start; gap: 6px;
+      font-size: 10.5px; color: #3c4043; margin-bottom: 5px; line-height: 1.4;
+    }
+    .g-icon { font-size: 11px; flex-shrink: 0; margin-top: 1px; }
+    .g-chip {
+      display: inline-block; font-size: 9.5px; color: #3c4043;
+      background: #f1f3f4; border-radius: 3px; padding: 2px 5px;
+      margin: 0 3px 4px 0;
+    }
+    .g-sidebar-entry {
+      display: flex; gap: 6px; margin-bottom: 8px; align-items: flex-start;
+    }
+    .g-dot {
+      width: 8px; height: 8px; border-radius: 50%; border: 2px solid;
+      flex-shrink: 0; margin-top: 3px;
+    }
+    .g-entry-title { font-size: 10.5px; font-weight: 700; color: #202124; }
+    .g-entry-sub   { font-size: 9.5px; color: #3c4043; }
+    .g-entry-date  { font-size: 9px; color: #80868b; }
+
+    /* ── Main ── */
+    .g-main { flex: 1; padding: 18px 24px 24px 20px; }
+    .g-main-section { margin-bottom: 16px; }
+    .g-entry {
+      display: flex; gap: 8px; margin-bottom: 12px; align-items: flex-start;
+    }
+    .g-entry-dot {
+      width: 8px; height: 8px; border-radius: 50%; border: 2px solid;
+      flex-shrink: 0; margin-top: 3px;
+    }
+    .g-entry-body { flex: 1; }
+    .g-entry-header {
+      display: flex; justify-content: space-between;
+      align-items: flex-start; gap: 6px; flex-wrap: wrap;
+    }
+    .g-entry-role { font-weight: 700; font-size: 11.5px; color: #202124; }
+    .g-location-badge {
+      font-size: 9px; color: #fff; background: #4285F4;
+      border-radius: 3px; padding: 1px 6px; font-weight: 500; white-space: nowrap;
+    }
+    .g-entry-org  { font-size: 10px; margin-bottom: 1px; }
+    .g-entry-date { font-size: 9.5px; color: #80868b; margin-bottom: 3px; }
+    .g-bullet { font-size: 10.5px; color: #3c4043; line-height: 1.55; margin-bottom: 2px; }
+    .g-body-text { font-size: 10.5px; color: #3c4043; margin-bottom: 3px; }
+  </style></head>
+  <body>
+    <div class="g-header">
+      <div class="g-name">${esc(meta.name) || "Your Name"}</div>
+      ${meta.title || meta.headline ? `<div class="g-title">${esc(meta.title || meta.headline)}</div>` : ""}
+    </div>
+    <div class="g-bar">
+      <div style="background:#4285F4"></div>
+      <div style="background:#EA4335"></div>
+      <div style="background:#FBBC05"></div>
+      <div style="background:#34A853"></div>
+    </div>
+    <div class="g-body">
+      <div class="g-sidebar">${sidebar}</div>
+      <div class="g-main">${main}</div>
+    </div>
+    <div class="g-bar">
+      <div style="background:#4285F4"></div>
+      <div style="background:#EA4335"></div>
+      <div style="background:#FBBC05"></div>
+      <div style="background:#34A853"></div>
+    </div>
   </body></html>`;
 }
 
@@ -518,15 +633,21 @@ export default async function handler(req, res) {
     return res.status(400).send("Session not found or expired");
   }
 
+  // ── FIX: prefer templateStyle saved in session over query param ──────────
+  // save-resume-session.js stores templateStyle alongside resume.
+  // The query param is a fallback for direct calls to this endpoint.
+  const effectiveTemplate = session.templateStyle || template;
+
   const { resume } = session;
 
   let browser;
 
   try {
     const fullHtml =
-      template === "modern"   ? buildModernHTML(resume)   :
-      template === "creative" ? buildCreativeHTML(resume) :
-                                buildPremiumHTML(resume);
+      effectiveTemplate === "modern"   ? buildModernHTML(resume)   :
+      effectiveTemplate === "creative" ? buildCreativeHTML(resume) :
+      effectiveTemplate === "google"   ? buildGoogleHTML(resume)   :
+                                         buildPremiumHTML(resume);
 
     browser = await puppeteer.launch({
       headless: "new",
@@ -551,7 +672,7 @@ export default async function handler(req, res) {
     res.setHeader("Content-Length", pdfBuffer.length);
     res.setHeader(
       "Content-Disposition",
-      `attachment; filename="resume-${template}.pdf"`
+      `attachment; filename="resume-${effectiveTemplate}.pdf"`
     );
 
     res.write(pdfBuffer);

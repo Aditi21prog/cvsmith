@@ -564,6 +564,369 @@ function renderCreativeDocx(data) {
   return [table];
 }
 
+/* ================= GOOGLE DOCX RENDERER ================= */
+// Layout: full-width header (name + Google colour bar) → two-column body.
+// Sidebar (~33%): light grey bg, contact, skills as shaded chips, education, certs.
+// Main (~67%): white bg, experience & other sections with role/date on one line.
+
+// Normalise raw resume sections — handles s.type vs s.title and s.content vs s.items
+function normaliseGoogleSections(sections) {
+  if (!Array.isArray(sections)) return [];
+  return sections.map((s) => {
+    if (!s) return null;
+    let items = s.items;
+    if (!items && s.content) {
+      // content is a plain string — split into skill tokens
+      items = s.content.split(/\n|•|\u2022|,/).map((x) => x.trim()).filter(Boolean);
+    }
+    return {
+      title: s.type || s.title || "",
+      items: Array.isArray(items) ? items : [],
+    };
+  }).filter(Boolean);
+}
+
+function renderGoogleDocx(data) {
+  const meta     = data.meta     || {};
+  const sections = normaliseGoogleSections(data.sections);
+
+  // ── Google brand palette ──
+  const G_BLUE   = "4285F4";
+  const G_RED    = "EA4335";
+  const G_YELLOW = "FBBC05";
+  const G_GREEN  = "34A853";
+  const G_GREY   = "5F6368";
+  const G_LGREY  = "80868B";
+  const TEXT     = "202124";
+  const BG       = "FFFFFF";
+  const SIDEBAR_BG = "F1F3F4";   // Google's light surface grey
+  const CHIP_BG    = "E8F0FE";   // soft blue tint for skill chips
+  const CHIP_TEXT  = "1967D2";   // darker Google blue for chip text
+
+  const SEC_COLORS = [G_BLUE, G_RED, G_GREEN, G_YELLOW];
+
+  // ── Column widths (US Letter content = 10800 dxa at 0.5" margins) ──
+  const FULL_W    = 10800;
+  const SIDEBAR_W = 3420;   // ~31.7%
+  const MAIN_W    = FULL_W - SIDEBAR_W; // ~68.3%
+
+  const noB = noBorder();
+
+  // ── Section routing ──
+  const SIDEBAR_TITLES = new Set([
+    "skills","technical skills","key skills","core skills","technologies",
+    "education","certifications","languages","interests","awards","achievements",
+  ]);
+  const normalizeTitle = (t) => (t || "").toLowerCase().trim();
+  const sidebarSections = sections.filter((s) =>  SIDEBAR_TITLES.has(normalizeTitle(s.title)));
+  const mainSections    = sections.filter((s) => !SIDEBAR_TITLES.has(normalizeTitle(s.title)));
+
+  // ── Helper: coloured section heading with bottom rule ──
+  function sectionHeading(title, color, isFirst = false) {
+    return new Paragraph({
+      spacing: { before: isFirst ? 80 : 280, after: 100 },
+      border: { bottom: { style: BorderStyle.SINGLE, size: 6, color } },
+      children: [
+        new TextRun({
+          text: (title || "").toUpperCase(),
+          bold: true,
+          size: 18,
+          color,
+          characterSpacing: 80,
+          font: "Arial",
+        }),
+      ],
+    });
+  }
+
+  /* ══════════════════════════════════════════════════
+     HEADER ROW — spans full width
+     Name (left-aligned, large) + Google colour stripe
+  ══════════════════════════════════════════════════ */
+  function buildHeaderRows() {
+    // Row 1: name + title/headline — spans all 4 columns
+    const nameRow = new TableRow({
+      children: [
+        new TableCell({
+          columnSpan: 4,
+          width: { size: FULL_W, type: WidthType.DXA },
+          borders: noB,
+          shading: { fill: BG, type: ShadingType.CLEAR },
+          margins: { top: 300, bottom: 160, left: 480, right: 480 },
+          children: [
+            new Paragraph({
+              spacing: { after: 60 },
+              children: [
+                new TextRun({
+                  text: meta.name || "",
+                  bold: true,
+                  size: 56,          // 28pt — prominent but not gigantic
+                  color: TEXT,
+                  font: "Arial",
+                }),
+              ],
+            }),
+            ...(meta.title || meta.headline ? [
+              new Paragraph({
+                spacing: { after: 0 },
+                children: [
+                  new TextRun({
+                    text: meta.title || meta.headline || "",
+                    size: 22,
+                    color: G_LGREY,
+                    font: "Arial",
+                  }),
+                ],
+              }),
+            ] : []),
+          ],
+        }),
+      ],
+    });
+
+    // Row 2: Google colour bar (4 equal segments)
+    const makeBarCell = (color, width) =>
+      new TableCell({
+        width: { size: width, type: WidthType.DXA },
+        borders: noB,
+        shading: { fill: color, type: ShadingType.CLEAR },
+        margins: { top: 0, bottom: 0, left: 0, right: 0 },
+        children: [new Paragraph({ spacing: { before: 0, after: 0 }, children: [new TextRun({ text: "" })] })],
+      });
+
+    const seg = Math.floor(FULL_W / 4);
+    const barRow = new TableRow({
+      height: { value: 80, rule: "exact" },
+      children: [
+        makeBarCell(G_BLUE,   seg),
+        makeBarCell(G_RED,    seg),
+        makeBarCell(G_YELLOW, seg),
+        makeBarCell(G_GREEN,  FULL_W - seg * 3),
+      ],
+    });
+
+    return [nameRow, barRow];
+  }
+
+  /* ══════════════════════════════════════════════════
+     SIDEBAR — contact + skills chips + education etc.
+  ══════════════════════════════════════════════════ */
+  function buildSidebar() {
+    const paras = [];
+
+    // ── Contact section ──
+    paras.push(sectionHeading("Contact", G_BLUE, true));
+
+    const contactItems = [
+      meta.location && { icon: "📍", val: meta.location },
+      meta.email    && { icon: "✉",  val: meta.email    },
+      meta.phone    && { icon: "✆",  val: meta.phone    },
+      meta.linkedin && { icon: "in", val: meta.linkedin },
+      meta.website  && { icon: "🔗", val: meta.website  },
+    ].filter(Boolean);
+
+    contactItems.forEach(({ icon, val }) => {
+      paras.push(new Paragraph({
+        spacing: { after: 60 },
+        children: [
+          new TextRun({ text: `${icon}  `, size: 19, color: G_BLUE, font: "Arial" }),
+          new TextRun({ text: val, size: 19, color: TEXT, font: "Arial" }),
+        ],
+      }));
+    });
+
+    // ── Sidebar sections (skills, education, certs…) ──
+    sidebarSections.forEach((section, si) => {
+      const color = SEC_COLORS[(si + 1) % SEC_COLORS.length]; // offset so first isn't same blue as contact
+
+      paras.push(sectionHeading(section.title, color));
+
+      // Detect if section is skill-like (all items are plain text / { text })
+      const isSkillSection = section.items.every(
+        (item) => typeof item === "string" || (item && item.text && !item.role && !item.degree)
+      );
+
+      if (isSkillSection) {
+        // Render each skill as a shaded chip paragraph
+        section.items.forEach((item) => {
+          const label = typeof item === "string" ? item : (item.text || "");
+          if (!label) return;
+          paras.push(new Paragraph({
+            spacing: { after: 60 },
+            shading: { fill: CHIP_BG, type: ShadingType.CLEAR },
+            indent: { left: 60, right: 60 },
+            children: [
+              new TextRun({
+                text: `  ${label}  `,
+                size: 18,
+                color: CHIP_TEXT,
+                bold: true,
+                font: "Arial",
+              }),
+            ],
+          }));
+        });
+      } else {
+        // Structured items — education, certifications, achievements
+        section.items.forEach((item) => {
+          if (!item) return;
+
+          if (typeof item === "string" || item.text) {
+            paras.push(new Paragraph({
+              spacing: { after: 50 },
+              children: [new TextRun({ text: `• ${item.text || item}`, size: 19, color: "3C4043", font: "Arial" })],
+            }));
+            return;
+          }
+
+          const role = item.role || item.degree || item.title || "";
+          const org  = item.org  || item.institution || item.company || "";
+          const date = item.date || (item.start && item.end
+            ? `${item.start} – ${item.end}`
+            : item.start || "");
+
+          if (role) paras.push(new Paragraph({
+            spacing: { before: 100, after: 20 },
+            children: [new TextRun({ text: role, bold: true, size: 19, color: TEXT, font: "Arial" })],
+          }));
+          if (org) paras.push(new Paragraph({
+            spacing: { after: 20 },
+            children: [new TextRun({ text: org, size: 18, color: G_GREY, font: "Arial" })],
+          }));
+          if (date) paras.push(new Paragraph({
+            spacing: { after: 50 },
+            children: [new TextRun({ text: date, size: 17, color: G_LGREY, font: "Arial" })],
+          }));
+        });
+      }
+    });
+
+    return paras;
+  }
+
+  /* ══════════════════════════════════════════════════
+     MAIN CONTENT — experience, summary, projects…
+  ══════════════════════════════════════════════════ */
+  function buildMain() {
+    const paras = [];
+
+    mainSections.forEach((section, si) => {
+      const color = SEC_COLORS[si % SEC_COLORS.length];
+
+      paras.push(sectionHeading(section.title, color, si === 0));
+
+      section.items.forEach((item, ii) => {
+        if (!item) return;
+
+        // Plain text / summary bullet
+        if (typeof item === "string" || item.text) {
+          paras.push(new Paragraph({
+            spacing: { after: 50 },
+            indent: { left: 120 },
+            children: [
+              new TextRun({ text: "›  ", size: 19, color, bold: true, font: "Arial" }),
+              new TextRun({ text: item.text || item, size: 19, color: "3C4043", font: "Arial" }),
+            ],
+          }));
+          return;
+        }
+
+        const role    = item.role    || item.title  || item.degree || "";
+        const org     = item.company || item.institution || item.org || "";
+        const date    = item.date    || (item.start && item.end
+          ? `${item.start} – ${item.end}`
+          : item.start ? `${item.start} – Present` : "");
+        const bullets = item.bullets || item.descriptions || item.details || [];
+
+        // Role (bold) + date (right-aligned, grey) on same line
+        if (role || date) {
+          paras.push(new Paragraph({
+            spacing: { before: ii === 0 ? 60 : 220, after: 24 },
+            tabStops: [{ type: TabStopType.RIGHT, position: MAIN_W - 360 }],
+            children: [
+              new TextRun({ text: role, bold: true, size: 22, color: TEXT, font: "Arial" }),
+              date ? new TextRun({ text: `\t${date}`, size: 18, color: G_LGREY, font: "Arial" }) : new TextRun({ text: "" }),
+            ],
+          }));
+        }
+
+        // Org in section accent colour with a small coloured bullet
+        if (org) {
+          paras.push(new Paragraph({
+            spacing: { after: 60 },
+            children: [
+              new TextRun({ text: "▸  ", size: 18, color, font: "Arial" }),
+              new TextRun({ text: org, size: 19, color, font: "Arial" }),
+            ],
+          }));
+        }
+
+        // Achievement bullets — indented, clean
+        bullets.forEach((b) => {
+          paras.push(new Paragraph({
+            spacing: { after: 40 },
+            indent: { left: 200, hanging: 200 },
+            children: [
+              new TextRun({ text: "•  ", size: 19, color: G_LGREY, font: "Arial" }),
+              new TextRun({ text: b, size: 19, color: "3C4043", font: "Arial" }),
+            ],
+          }));
+        });
+      });
+    });
+
+    return paras;
+  }
+
+  /* ══════════════════════════════════════════════════
+     ASSEMBLE: header table (full-width) + body table
+  ══════════════════════════════════════════════════ */
+
+  const _seg = Math.floor(FULL_W / 4);
+
+  // Header table — 4 equal columns for the colour bar row
+  const headerTable = new Table({
+    width: { size: FULL_W, type: WidthType.DXA },
+    columnWidths: [_seg, _seg, _seg, FULL_W - _seg * 3],
+    layout: "fixed",
+    rows: buildHeaderRows(),
+  });
+
+  // Body table — sidebar | main
+  const bodyTable = new Table({
+    width: { size: FULL_W, type: WidthType.DXA },
+    columnWidths: [SIDEBAR_W, MAIN_W],
+    layout: "fixed",
+    rows: [
+      new TableRow({
+        children: [
+          // Sidebar cell
+          new TableCell({
+            width: { size: SIDEBAR_W, type: WidthType.DXA },
+            borders: noB,
+            shading: { fill: SIDEBAR_BG, type: ShadingType.CLEAR },
+            margins: { top: 280, bottom: 480, left: 280, right: 240 },
+            children: buildSidebar(),
+          }),
+          // Main cell
+          new TableCell({
+            width: { size: MAIN_W, type: WidthType.DXA },
+            borders: {
+              ...noB,
+              left: { style: BorderStyle.SINGLE, size: 4, color: "DADCE0" },
+            },
+            shading: { fill: BG, type: ShadingType.CLEAR },
+            margins: { top: 280, bottom: 480, left: 320, right: 280 },
+            children: buildMain(),
+          }),
+        ],
+      }),
+    ],
+  });
+
+  return [headerTable, bodyTable];
+}
+
 /* ================= API HANDLER ================= */
 
 export default async function handler(req, res) {
@@ -580,25 +943,34 @@ export default async function handler(req, res) {
     return res.status(400).send("Session not found");
   }
 
+  // ── FIX: prefer templateStyle saved in session over query param ──────────
+  // save-resume-session.js stores templateStyle alongside resume.
+  // The query param is a fallback for direct calls to this endpoint.
+  const effectiveTemplate = session.templateStyle || template;
+
   const { resume } = session;
 
   try {
+    // For Google template we pass resume directly (meta+sections schema).
+    // For others, we normalise via the template's own renderX() function.
     const data =
-      template === "modern"
-        ? renderModern(resume)
-        : template === "creative"
-        ? renderCreative(resume)
-        : renderPremium(resume);
+      effectiveTemplate === "modern"   ? renderModern(resume)   :
+      effectiveTemplate === "creative" ? renderCreative(resume) :
+      effectiveTemplate === "google"   ? resume                 :
+                                          renderPremium(resume);
 
     let children;
     let margin;
 
-    if (template === "modern") {
+    if (effectiveTemplate === "modern") {
       children = renderModernDocx(data);
       margin = { top: 1080, right: 1080, bottom: 1080, left: 1080 };
-    } else if (template === "creative") {
+    } else if (effectiveTemplate === "creative") {
       children = renderCreativeDocx(data);
       margin = { top: 0, right: 0, bottom: 0, left: 0 };
+    } else if (effectiveTemplate === "google") {
+      children = renderGoogleDocx(data);
+      margin = { top: 0, right: 720, bottom: 720, left: 720 };
     } else {
       children = renderPremiumDocx(data);
       margin = { top: 1080, right: 1080, bottom: 1080, left: 1080 };
@@ -626,7 +998,7 @@ export default async function handler(req, res) {
     );
     res.setHeader(
       "Content-Disposition",
-      `attachment; filename="resume-${template}.docx"`
+      `attachment; filename="resume-${effectiveTemplate}.docx"`
     );
 
     res.send(buffer);
