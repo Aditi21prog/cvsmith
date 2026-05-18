@@ -34,7 +34,7 @@ function InstructionsPage({ onStart }) {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         {[
           { step: "01", icon: "📄", title: "Upload Resume", desc: "PDF or Word. We extract everything automatically." },
-          { step: "02", icon: "🎯", title: "Paste Job Description", desc: "Presently available for Audit and Investment Banking." },
+          { step: "02", icon: "🎯", title: "Paste Job Description", desc: "Presently available for Finance and IT roles." },
           { step: "03", icon: "✨", title: "Get ATS-Optimised Resume", desc: "Preview free. Pay only when you're satisfied." },
         ].map((item) => (
           <div key={item.step} className="rounded-2xl bg-slate-800/50 border border-slate-700/50 p-4 space-y-2">
