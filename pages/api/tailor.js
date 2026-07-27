@@ -59,9 +59,160 @@ function computeATS(resumeText, keywords = []) {
 /* =====================================================
    PROMPT — THIS IS THE CORE INTELLIGENCE
 ===================================================== */
+/* =====================================================
+   ROLE-SPECIFIC INSTRUCTIONS
+===================================================== */
+function getRoleInstructions(role) {
+  const map = {
+
+    /* ── FINANCE ── */
+    audit: `
+ROLE CONTEXT: Audit — Big4 / Internal Audit
+- Lead bullets with audit-specific verbs: Audited, Assessed, Evaluated, Identified, Reported, Remediated
+- Highlight: engagement types (statutory, internal, IFC, SOX), industries covered, team size, findings raised
+- Skills to surface: Risk Assessment, IFC/ICFR, SOX, COSO, SAP, Data Analytics, Working Papers, Audit Planning
+- Flag any CA / CPA / CIA / ACCA certification progress
+- Summary must mention: domain (audit/risk), tools, client industries, any Big4 brand if present`,
+
+    ib: `
+ROLE CONTEXT: Investment Banking — Analyst / Associate
+- Lead bullets with IB verbs: Modelled, Valued, Executed, Structured, Advised, Originated, Closed
+- Highlight: deal size (₹ or $), transaction type (M&A, ECM, DCM, LBO, PE), client type, live vs pitch
+- Skills to surface: Financial Modelling, DCF, LBO, Comparable Company Analysis, Pitch Books, Bloomberg, Capital IQ
+- Include any CFA progress, MBA, or CPA
+- Summary must mention: deal experience, sector focus, modelling depth`,
+
+    /* ── ENGINEERING ── */
+    swe: `
+ROLE CONTEXT: Software Engineer — SDE 1 / SDE 2
+- Lead bullets with engineering verbs: Built, Designed, Implemented, Optimised, Shipped, Migrated, Automated
+- Quantify: latency reduction (ms/%), throughput (RPS/QPS), scale (users/DAU), uptime (%)
+- Skills to surface: languages used, frameworks, databases, cloud (AWS/GCP/Azure), testing, CI/CD
+- Highlight: system ownership, PR count or code review culture, on-call or production impact
+- Summary: years of experience, primary stack, scale of systems worked on`,
+
+    swe_senior: `
+ROLE CONTEXT: Senior Software Engineer — SDE 3 / Staff
+- Emphasise: technical leadership, architecture decisions, cross-team influence, mentoring
+- Lead with: Architected, Led, Defined, Drove, Mentored, Reviewed, Scaled
+- Quantify: team size mentored, services owned, incident reduction, reliability improvements
+- Skills: system design, distributed systems, API design, observability (Datadog/Prometheus), leadership
+- Summary: scope of impact (org-wide vs team), technical depth, leadership narrative`,
+
+    data_eng: `
+ROLE CONTEXT: Data Engineer — ETL / Pipelines / Warehouse
+- Lead with: Built, Designed, Orchestrated, Ingested, Optimised, Automated, Migrated
+- Quantify: data volume (GB/TB/PB), pipeline SLA (latency, freshness), cost savings
+- Skills to surface: Spark, dbt, Airflow, Kafka, Flink, Snowflake, BigQuery, Redshift, Python, SQL
+- Highlight: pipeline reliability, data quality frameworks, schema design, orchestration tooling
+- Summary: data stack, scale, and business impact of pipelines built`,
+
+    ml_eng: `
+ROLE CONTEXT: ML / AI Engineer — Models & Infra
+- Lead with: Trained, Fine-tuned, Deployed, Optimised, Evaluated, Served, Integrated
+- Quantify: model accuracy (%), latency (ms), dataset size, throughput, A/B test lift
+- Skills to surface: PyTorch, TensorFlow, Hugging Face, MLflow, Kubeflow, LLMs, RAG, vector DBs, Python
+- Highlight: production deployment (not just notebooks), model monitoring, retraining pipelines
+- Summary: ML domain (NLP/CV/RecSys/LLM), production scale, business outcome`,
+
+    devops: `
+ROLE CONTEXT: DevOps / Platform Engineer — CI/CD / Cloud
+- Lead with: Automated, Reduced, Deployed, Migrated, Secured, Monitored, Provisioned
+- Quantify: deployment frequency, MTTR reduction, cost savings ($), uptime (%), infra scale
+- Skills to surface: Kubernetes, Docker, Terraform, Helm, GitHub Actions, Jenkins, AWS/GCP/Azure, Prometheus, Grafana
+- Highlight: IaC coverage, SLO/SLA ownership, incident reduction, developer productivity gains
+- Summary: cloud provider, infra scale, reliability engineering focus`,
+
+    frontend: `
+ROLE CONTEXT: Frontend Engineer — React / Web / UI
+- Lead with: Built, Designed, Optimised, Migrated, Shipped, Implemented, Refactored
+- Quantify: Core Web Vitals (LCP/CLS/FID), bundle size reduction, render time, accessibility score
+- Skills to surface: React, Next.js, TypeScript, CSS/Tailwind, Webpack/Vite, Storybook, Jest, Cypress
+- Highlight: design system contributions, cross-browser/device testing, performance wins
+- Summary: UI complexity handled, component library ownership, collaboration with designers`,
+
+    backend: `
+ROLE CONTEXT: Backend Engineer — APIs / Systems
+- Lead with: Designed, Built, Optimised, Scaled, Secured, Migrated, Refactored
+- Quantify: API throughput (RPS), latency (p99 ms), DB query improvements, uptime (%)
+- Skills to surface: Node.js/Go/Java/Python, REST/GraphQL, PostgreSQL/MySQL/MongoDB, Redis, Kafka, gRPC
+- Highlight: API versioning, rate limiting, auth/authz, caching strategies, service reliability
+- Summary: services owned, traffic scale, backend domain (payments/auth/infra/data)`,
+
+    fullstack: `
+ROLE CONTEXT: Full-Stack Engineer
+- Balance frontend and backend bullets roughly equally
+- Lead with: Built, Shipped, Owned, Integrated, Deployed, Designed
+- Quantify: feature adoption, load time, API response time, user count
+- Skills: React/Next.js + Node.js/Python, SQL/NoSQL, REST, cloud, CI/CD
+- Highlight: end-to-end feature ownership, product thinking, cross-functional collaboration
+- Summary: stack breadth, product impact, startup vs enterprise context`,
+
+    mobile: `
+ROLE CONTEXT: Mobile Engineer — iOS / Android / React Native
+- Lead with: Built, Shipped, Optimised, Integrated, Migrated, Released
+- Quantify: App Store rating, crash rate (%), app size reduction, render time, MAU/DAU
+- Skills to surface: Swift/Kotlin/React Native/Flutter, Xcode/Android Studio, push notifications, offline support
+- Highlight: release cadence, CI/CD for mobile (Fastlane/Bitrise), deep linking, analytics integration
+- Summary: platform (iOS/Android/cross-platform), app category, production scale`,
+
+    /* ── LEGAL ── */
+    legal_fresher: `
+ROLE CONTEXT: Law Graduate / LLB Fresher
+- Lead with: Researched, Drafted, Assisted, Represented, Argued, Compiled, Analysed
+- Highlight: moot court wins (rank/prize), internships (chamber name, firm name, HC/SC), legal aid, publications
+- Skills to surface: Legal Research, Westlaw/SCC Online/Manupatra, Contract Drafting, Case Briefing, OSCOLA/Bluebook
+- Mention: Bar enrolment status, any specialisation during LLB (corporate/criminal/IP/constitutional)
+- Summary: law school, specialisation interest, internship exposure, advocacy or research strength`,
+
+    legal_associate: `
+ROLE CONTEXT: Associate — Law Firm / Litigation
+- Lead with: Appeared, Drafted, Argued, Advised, Negotiated, Researched, Filed
+- Highlight: courts appeared in (HC, SC, NCLT, NCLAT, SAT, Tribunal), matter count, practice area
+- Quantify: number of matters handled, drafting volume (contracts/pleadings), client industry
+- Skills: Litigation Strategy, Pleading Drafting, Contract Negotiation, Court Appearances, Legal Research
+- Summary: practice area (commercial/criminal/arbitration), court exposure, client type`,
+
+    legal_corp: `
+ROLE CONTEXT: Corporate Counsel — In-House / M&A
+- Lead with: Advised, Negotiated, Structured, Reviewed, Closed, Drafted, Led
+- Highlight: deal value (₹ or $), transaction type (M&A, PE, JV, Share Purchase, Asset Deal), cross-border work
+- Quantify: number of transactions closed, contracts reviewed per quarter, regulatory approvals obtained
+- Skills: M&A, Due Diligence, SPA/SHA/NDA Drafting, FEMA, Companies Act, SEBI Regulations, Contract Management
+- Summary: transaction experience, sectors covered, in-house vs law firm background`,
+
+    legal_ip: `
+ROLE CONTEXT: IP / Patents — Trademarks & Copyrights
+- Lead with: Filed, Prosecuted, Advised, Drafted, Opposed, Registered, Enforced
+- Highlight: filing count (patents/trademarks), jurisdictions (India/USPTO/EPO), opposition/cancellation wins
+- Quantify: portfolio size managed, filings per year, enforcement actions taken
+- Skills: Patent Prosecution, Trademark Filing, IP Due Diligence, Freedom to Operate, IP Licensing, Copyright Law
+- Summary: IP domain (patents/trademarks/copyright/trade secrets), technical background if any (for patents)`,
+
+    legal_compliance: `
+ROLE CONTEXT: Compliance & Regulatory — SEBI / RBI / GDPR
+- Lead with: Implemented, Monitored, Audited, Drafted, Advised, Reported, Trained
+- Highlight: frameworks handled (SEBI LODR, RBI guidelines, GDPR, POSH, PMLA, Companies Act)
+- Quantify: audits conducted, policies drafted, training sessions delivered, incidents resolved
+- Skills: Regulatory Compliance, Risk Assessment, Policy Drafting, SEBI/RBI/MCA Filings, GDPR, AML/KYC
+- Summary: regulatory domain, industry (BFSI/tech/manufacturing), in-house vs consulting background`,
+  };
+
+  return map[role] || `
+ROLE CONTEXT: General Professional
+- Use strong action verbs relevant to the domain
+- Quantify impact wherever possible
+- Align wording tightly with the job description provided`;
+}
+
+/* =====================================================
+   PROMPT — THIS IS THE CORE INTELLIGENCE
+===================================================== */
 function buildPrompt(resumeText, jd, role) {
+  const roleInstructions = getRoleInstructions(role);
+
   return `
-You are an ENTERPRISE RESUME TAILORING ENGINE used by Big4, GRCS, and Fortune 500 ATS systems.
+You are an ENTERPRISE RESUME TAILORING ENGINE used by Big4, GRCS, law firms, and Fortune 500 ATS systems.
 
 THIS IS A ZERO-TOLERANCE TASK.
 
@@ -140,7 +291,6 @@ THIS IS A ZERO-TOLERANCE TASK.
 ──────────────── EXPERIENCE RULES ────────────────
 - Rewrite EVERY bullet
 - Format: Action Verb + What + How + Impact
-- Use audit / risk / GRCS language where relevant
 - Quantify wherever possible
 - Remove weak bullets
 
@@ -153,8 +303,11 @@ THIS IS A ZERO-TOLERANCE TASK.
 - Extract 20–35 keywords from JD
 - Store ONLY in ats.keywords[]
 
-ROLE:
-${role}
+──────────────── ROLE-SPECIFIC INSTRUCTIONS ────────────────
+${roleInstructions}
+
+──────────────── INPUTS ────────────────
+ROLE: ${role}
 
 JOB DESCRIPTION:
 ${jd}
