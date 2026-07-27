@@ -10,6 +10,16 @@ const ROLE_GROUPS = [
     ],
   },
   {
+    group: "Legal",
+    roles: [
+      { value: "legal_fresher",  label: "Law Graduate / LLB Fresher" },
+      { value: "legal_associate", label: "Associate — Law Firm / Litigation" },
+      { value: "legal_corp",     label: "Corporate Counsel — In-House / M&A" },
+      { value: "legal_ip",       label: "IP / Patents — Trademarks & Copyrights" },
+      { value: "legal_compliance", label: "Compliance & Regulatory — SEBI / RBI / GDPR" },
+    ],
+  },
+  {
     group: "Engineering",
     roles: [
       { value: "swe",     label: "Software Engineer — SDE 1 / SDE 2" },
@@ -29,6 +39,11 @@ const ROLE_GROUPS = [
 const TIPS = {
   audit:      "Include any certification progress (CA, CPA, CIA) and engagement types handled.",
   ib:         "For IB roles, include deal size, valuation methodology, and any live transaction experience.",
+  legal_fresher:    "Highlight moot court wins, internships (chambers/firm), publications, and any Bar enrolment status.",
+  legal_associate:  "Mention practice areas, courts appeared in, number of matters handled, and drafting experience (contracts, pleadings).",
+  legal_corp:       "Include deal value, transaction types (M&A, PE, JV), and any cross-border or regulatory work.",
+  legal_ip:         "List filings (patent/trademark applications), jurisdictions covered, and any litigation or opposition work.",
+  legal_compliance: "Mention regulatory frameworks handled (SEBI, RBI, GDPR, POSH), audits conducted, and policy drafting.",
   swe:        "Quantify impact — latency improvements, scale (users/RPS), and system scope.",
   swe_senior: "Highlight cross-team scope, technical leadership, and hiring/mentoring.",
   data_eng:   "Mention data volume (TB/PB), tools (Spark, dbt, Airflow), and pipeline SLAs.",
