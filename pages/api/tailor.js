@@ -196,6 +196,64 @@ ROLE CONTEXT: Compliance & Regulatory — SEBI / RBI / GDPR
 - Quantify: audits conducted, policies drafted, training sessions delivered, incidents resolved
 - Skills: Regulatory Compliance, Risk Assessment, Policy Drafting, SEBI/RBI/MCA Filings, GDPR, AML/KYC
 - Summary: regulatory domain, industry (BFSI/tech/manufacturing), in-house vs consulting background`,
+
+    /* ── CONSULTING & DIGITAL TRANSFORMATION ── */
+    consulting_generalist: `
+ROLE CONTEXT: Management Consultant — Strategy / Operations
+- Lead with: Advised, Designed, Delivered, Identified, Restructured, Optimised, Led
+- Highlight: client industry, engagement size, business impact (cost savings ₹/$, revenue uplift %, efficiency gains)
+- Quantify: project value, team size, timelines, measurable outcomes for the client
+- Skills: Problem Structuring, Business Case Development, Financial Modelling, Stakeholder Management, PowerPoint/Deck delivery
+- Summary: consulting track (strategy/ops/transformation), client type (Big4/MBB/boutique), sector focus`,
+
+    consulting_digital: `
+ROLE CONTEXT: Digital Transformation Consultant
+- Lead with: Transformed, Modernised, Migrated, Implemented, Automated, Digitised, Enabled
+- Highlight: legacy-to-digital transitions, cloud migration scope, process automation wins, adoption metrics
+- Quantify: systems migrated, FTE hours saved, cost reduction (%), user adoption rate achieved
+- Skills: Cloud (AWS/Azure/GCP), RPA (UiPath/AA), ERP, API Integration, Process Mining, Change Enablement
+- Summary: transformation scope (enterprise/SMB), tech stack modernised, measurable business outcomes`,
+
+    consulting_innovation: `
+ROLE CONTEXT: Innovation Consultant — New Ventures / R&D
+- Lead with: Designed, Piloted, Incubated, Prototyped, Launched, Validated, Ideated
+- Highlight: innovation frameworks used (Design Thinking, Lean Startup, Jobs-to-be-Done), pilot outcomes, ventures built
+- Quantify: ideas generated → piloted → scaled, revenue/cost impact of innovations, patents filed
+- Skills: Design Thinking, Rapid Prototyping, Venture Building, Open Innovation, R&D Pipeline Management
+- Summary: innovation domain (product/process/business model), industry context, stage of innovation work`,
+
+    consulting_tech: `
+ROLE CONTEXT: Technology Consultant — IT Advisory / ERP
+- Lead with: Implemented, Configured, Advised, Migrated, Integrated, Rolled Out, Optimised
+- Highlight: ERP platforms (SAP S/4HANA, Oracle, Salesforce, Dynamics), phase (blueprint/build/go-live/hypercare)
+- Quantify: user count, go-live scope, modules implemented, downtime avoided, budget managed
+- Skills: SAP/Oracle/Salesforce, IT Architecture, Systems Integration, Business Process Mapping, ITIL, Vendor Management
+- Summary: technology platform specialisation, implementation scale, client industry`,
+
+    consulting_change: `
+ROLE CONTEXT: Change Management Consultant
+- Lead with: Led, Designed, Facilitated, Trained, Communicated, Embedded, Mobilised
+- Highlight: change scope (org restructure, system rollout, culture transformation), stakeholder tier engaged
+- Quantify: adoption rate achieved (%), training sessions delivered, stakeholder count managed, resistance incidents resolved
+- Skills: Prosci/ADKAR, Stakeholder Mapping, Communications Planning, Training Design, Organisational Design
+- Summary: change methodology used, organisation size, type of transformation (tech/cultural/structural)`,
+
+    consulting_data: `
+ROLE CONTEXT: Data & Analytics Consultant
+- Lead with: Built, Designed, Delivered, Analysed, Modelled, Visualised, Automated
+- Highlight: business decisions enabled by analysis, dashboards built, data quality improvements
+- Quantify: data sources integrated, report users served, time saved on manual reporting, ROI of insights
+- Skills: Power BI, Tableau, SQL, Python, Excel, Data Modelling, ETL, Statistical Analysis, Story-telling with Data
+- Summary: analytics domain (BI/advanced analytics/AI), client industry, business impact of insights delivered`,
+
+    consulting_agile: `
+ROLE CONTEXT: Agile / Scrum Coach — Transformation Lead
+- Lead with: Coached, Facilitated, Implemented, Scaled, Trained, Embedded, Transformed
+- Highlight: team size coached, ceremonies facilitated (sprint planning/retros/PI planning), SAFe/LeSS/Scrum framework
+- Quantify: velocity improvement (%), cycle time reduction, teams transformed, org-level vs team-level scope
+- Skills: Scrum, SAFe, Kanban, LeSS, Jira/Azure DevOps, OKRs, Retrospective Facilitation, Product Backlog Management
+- Summary: agile framework specialisation, transformation scope (team/programme/enterprise), industry context`,
+
   };
 
   return map[role] || `
